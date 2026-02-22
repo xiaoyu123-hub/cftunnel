@@ -4,8 +4,14 @@
 
 ## 安装
 
+macOS / Linux:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/qingchencloud/cftunnel/main/install.sh | bash
+```
+
+Windows (PowerShell):
+```powershell
+irm https://raw.githubusercontent.com/qingchencloud/cftunnel/main/install.ps1 | iex
 ```
 
 ## 免域名模式（零配置）

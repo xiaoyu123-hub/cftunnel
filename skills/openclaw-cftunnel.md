@@ -2,6 +2,18 @@
 
 一键管理 Cloudflare Tunnel 的开源工具，内网穿透从未如此简单。
 
+## 安装
+
+macOS / Linux:
+```bash
+curl -fsSL https://raw.githubusercontent.com/qingchencloud/cftunnel/main/install.sh | bash
+```
+
+Windows (PowerShell):
+```powershell
+irm https://raw.githubusercontent.com/qingchencloud/cftunnel/main/install.ps1 | iex
+```
+
 ## 免域名模式（零配置）
 
 无需账户、Token、域名，一条命令生成临时公网地址：

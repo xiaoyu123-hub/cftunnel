@@ -308,7 +308,11 @@ cftunnel 内置了 AI 助手 Skills，让 Claude Code、OpenClaw 等 AI 编码�
 
 ## 安装
 
+macOS / Linux:
 curl -fsSL https://raw.githubusercontent.com/qingchencloud/cftunnel/main/install.sh | bash
+
+Windows (PowerShell):
+irm https://raw.githubusercontent.com/qingchencloud/cftunnel/main/install.ps1 | iex
 
 ## 两种模式
 
