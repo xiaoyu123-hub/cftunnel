@@ -8,7 +8,7 @@
 
 [为什么选 cftunnel？](#why) · [安装](#install) · [快速上手](#quickstart) · [命令参考](#commands) · [AI 助手集成](#ai) · [交流](#contact)
 
-关联项目：[ClawApp](https://github.com/qingchencloud/clawapp) · [OpenClaw 中文翻译](https://github.com/1186258278/OpenClawChineseTranslation)
+关联项目：[cftunnel-app 桌面客户端](https://github.com/qingchencloud/cftunnel-app) · [ClawApp](https://github.com/qingchencloud/clawapp) · [OpenClaw 中文翻译](https://github.com/1186258278/OpenClawChineseTranslation)
 
 > 用 AI 写了个前端页面想给客户看？本地跑着 API 想让远程同事调试？开发环境需要接收 Webhook？
 >
