@@ -17,7 +17,7 @@ func processRunning(pid int) bool {
 	return !strings.Contains(string(out), "No tasks")
 }
 
-// processKill 终止进程（Windows: taskkill）
+// processKill 优雅终止进程（Windows: taskkill 不带 /F 发送关闭信号）
 func processKill(pid int) error {
-	return exec.Command("taskkill", "/PID", strconv.Itoa(pid), "/F").Run()
+	return exec.Command("taskkill", "/PID", strconv.Itoa(pid)).Run()
 }

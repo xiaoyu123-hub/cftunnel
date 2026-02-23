@@ -48,6 +48,38 @@ func (c *Client) ListTunnels(ctx context.Context) ([]shared.CloudflareTunnel, er
 	return result, nil
 }
 
+// PushIngressConfig 推送 ingress 配置到 Cloudflare 远端
+func (c *Client) PushIngressConfig(ctx context.Context, tunnelID string, routes []IngressRule) error {
+	// 添加 catch-all 规则
+	ingress := make([]zero_trust.TunnelCloudflaredConfigurationUpdateParamsConfigIngress, 0, len(routes)+1)
+	for _, r := range routes {
+		ingress = append(ingress, zero_trust.TunnelCloudflaredConfigurationUpdateParamsConfigIngress{
+			Hostname: cf.F(r.Hostname),
+			Service:  cf.F(r.Service),
+		})
+	}
+	ingress = append(ingress, zero_trust.TunnelCloudflaredConfigurationUpdateParamsConfigIngress{
+		Service: cf.F("http_status:404"),
+	})
+
+	_, err := c.api.ZeroTrust.Tunnels.Cloudflared.Configurations.Update(ctx, tunnelID, zero_trust.TunnelCloudflaredConfigurationUpdateParams{
+		AccountID: cf.F(c.accountID),
+		Config: cf.F(zero_trust.TunnelCloudflaredConfigurationUpdateParamsConfig{
+			Ingress: cf.F(ingress),
+		}),
+	})
+	if err != nil {
+		return fmt.Errorf("推送 ingress 配置失败: %w", err)
+	}
+	return nil
+}
+
+// IngressRule ingress 路由规则
+type IngressRule struct {
+	Hostname string
+	Service  string
+}
+
 // GetTunnelToken 获取隧道运行 Token
 func (c *Client) GetTunnelToken(ctx context.Context, tunnelID string) (string, error) {
 	token, err := c.api.ZeroTrust.Tunnels.Cloudflared.Token.Get(ctx, tunnelID, zero_trust.TunnelCloudflaredTokenGetParams{

@@ -24,6 +24,12 @@ func New(apiToken, accountID string) *Client {
 func (c *Client) AccountID() string { return c.accountID }
 func (c *Client) API() *cf.Client   { return c.api }
 
+// ZoneInfo 简化的 Zone 信息
+type ZoneInfo struct {
+	ID   string
+	Name string
+}
+
 // ListZones 列出账户下所有域名
 func (c *Client) ListZones(ctx context.Context) ([]zones.Zone, error) {
 	pager := c.api.Zones.ListAutoPaging(ctx, zones.ZoneListParams{})

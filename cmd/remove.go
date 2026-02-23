@@ -43,6 +43,13 @@ var removeCmd = &cobra.Command{
 		if err := cfg.Save(); err != nil {
 			return err
 		}
+
+		// 推送 ingress 配置到远端
+		fmt.Println("正在同步 ingress 配置...")
+		if err := pushIngress(client, ctx, cfg); err != nil {
+			fmt.Printf("警告: 推送 ingress 失败: %v\n", err)
+		}
+
 		fmt.Printf("路由 %s 已删除\n", name)
 		return nil
 	},

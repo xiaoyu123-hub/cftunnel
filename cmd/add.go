@@ -18,6 +18,29 @@ func init() {
 	rootCmd.AddCommand(addCmd)
 }
 
+// pushIngress 推送当前所有路由的 ingress 配置到远端
+func pushIngress(client *cfapi.Client, ctx context.Context, cfg *config.Config) error {
+	var rules []cfapi.IngressRule
+	for _, r := range cfg.Routes {
+		rules = append(rules, cfapi.IngressRule{Hostname: r.Hostname, Service: r.Service})
+	}
+	return client.PushIngressConfig(ctx, cfg.Tunnel.ID, rules)
+}
+
+// findZoneForDomain 通过遍历账户 Zone 列表匹配域名（支持多级 TLD）
+func findZoneForDomain(client *cfapi.Client, ctx context.Context, domain string) (*cfapi.ZoneInfo, error) {
+	zoneList, err := client.ListZones(ctx)
+	if err != nil {
+		return nil, err
+	}
+	for _, z := range zoneList {
+		if domain == z.Name || strings.HasSuffix(domain, "."+z.Name) {
+			return &cfapi.ZoneInfo{ID: z.ID, Name: z.Name}, nil
+		}
+	}
+	return nil, fmt.Errorf("未找到域名 %s 对应的 Zone，请确认域名已添加到 Cloudflare", domain)
+}
+
 var addCmd = &cobra.Command{
 	Use:   "add <名称> <端口>",
 	Short: "添加路由（自动创建 CNAME + 更新 ingress）",
@@ -40,13 +63,8 @@ var addCmd = &cobra.Command{
 		client := cfapi.New(cfg.Auth.APIToken, cfg.Auth.AccountID)
 		ctx := context.Background()
 
-		// 提取主域名查找 Zone
-		parts := strings.Split(addDomain, ".")
-		if len(parts) < 2 {
-			return fmt.Errorf("无效域名: %s", addDomain)
-		}
-		mainDomain := strings.Join(parts[len(parts)-2:], ".")
-		zone, err := client.FindZoneByDomain(ctx, mainDomain)
+		// 查找域名对应的 Zone（支持多级 TLD）
+		zone, err := findZoneForDomain(client, ctx, addDomain)
 		if err != nil {
 			return err
 		}
@@ -69,6 +87,12 @@ var addCmd = &cobra.Command{
 		})
 		if err := cfg.Save(); err != nil {
 			return err
+		}
+
+		// 推送 ingress 配置到远端
+		fmt.Println("正在同步 ingress 配置...")
+		if err := pushIngress(client, ctx, cfg); err != nil {
+			fmt.Printf("警告: 推送 ingress 失败: %v\n", err)
 		}
 
 		fmt.Printf("路由已添加: %s → %s (%s)\n", addDomain, service, name)
