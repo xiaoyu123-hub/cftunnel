@@ -13,7 +13,7 @@ type Windows struct{}
 const svcName = "cftunnel"
 
 func (w *Windows) Install(binPath, token string) error {
-	binArg := fmt.Sprintf(`%s tunnel run --token %s`, binPath, token)
+	binArg := fmt.Sprintf(`%s tunnel --protocol http2 run --token %s`, binPath, token)
 	if err := exec.Command("sc", "create", svcName, "binPath=", binArg, "start=", "auto").Run(); err != nil {
 		return fmt.Errorf("创建服务失败: %w", err)
 	}

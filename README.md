@@ -6,7 +6,7 @@
 
 **Cloudflare Tunnel 一键管理 CLI** — 让本地项目秒变公网可访问。
 
-[为什么选 cftunnel？](#why) · [架构原理](#architecture) · [安装](#install) · [快速上手](#quickstart) · [命令参考](#commands) · [AI 助手集成](#ai) · [交流](#contact)
+[为什么选 cftunnel？](#why) · [架构原理](#architecture) · [安装](#install) · [快速上手](#quickstart) · [命令参考](#commands) · [故障排查](#troubleshooting) · [AI 助手集成](#ai) · [交流](#contact)
 
 关联项目：[cftunnel-app 桌面客户端](https://github.com/qingchencloud/cftunnel-app)（[下载](https://github.com/qingchencloud/cftunnel-app/releases)） · [ClawApp](https://github.com/qingchencloud/clawapp) · [OpenClaw 中文翻译](https://github.com/1186258278/OpenClawChineseTranslation)
 
@@ -341,6 +341,56 @@ routes:
       password: secret123
       signing_key: "auto-generated"
 ```
+
+<p align="right"><a href="#cftunnel">⬆ 回到顶部</a></p>
+
+<h2 id="troubleshooting">故障排查</h2>
+
+### QUIC 连接超时
+
+**现象：** 日志中反复出现 `failed to dial to edge with quic: timeout: no recent network activity`
+
+**原因：** cloudflared 默认使用 QUIC（UDP）协议，代理软件或防火墙拦截了 UDP 流量。
+
+**解决：** cftunnel v0.6.1+ 已默认使用 `--protocol http2`（TCP）。如果你是手动安装的系统服务，请重新安装：
+
+```bash
+cftunnel uninstall
+cftunnel install
+```
+
+### DNS 被 fake-ip 劫持
+
+**现象：** cloudflared 连接的 IP 是 `198.18.0.x`（Clash/代理软件的虚拟 IP 段），TLS 握手失败。
+
+**原因：** Clash Verge 等代理软件的 TUN 模式启用了 fake-ip，劫持了 cloudflared 的 DNS 解析。
+
+**解决（任选其一）：**
+
+1. 在代理软件的 TUN 设置中，将 `cloudflared` 进程加入绕行列表（推荐）
+2. 将 `*.argotunnel.com` 加入 fake-ip-filter 排除列表
+3. 临时关闭 TUN 模式
+
+### Cloudflare 1033 错误
+
+**现象：** 浏览器显示 `error code: 1033`
+
+**原因：** 域名的 DNS CNAME 记录指向了旧的 Tunnel ID，与当前运行的隧道不匹配。
+
+**解决：** 删除路由后重新添加，cftunnel 会自动修正 DNS 记录：
+
+```bash
+cftunnel remove <路由名称>
+cftunnel add <路由名称> <端口> --domain <域名>
+```
+
+### Cloudflare 530 错误
+
+**现象：** 浏览器显示 HTTP 530 错误
+
+**原因：** cloudflared 未成功连接到 Cloudflare Edge，通常是上述 QUIC 超时或 fake-ip 问题导致。
+
+**解决：** 运行 `cftunnel logs -f` 查看实时日志，根据具体错误信息参考上述对应章节排查。
 
 <p align="right"><a href="#cftunnel">⬆ 回到顶部</a></p>
 

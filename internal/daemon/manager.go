@@ -26,7 +26,7 @@ func Start(token string) error {
 		return fmt.Errorf("cloudflared 已在运行")
 	}
 
-	cmd := exec.Command(binPath, "tunnel", "run", "--token", token)
+	cmd := exec.Command(binPath, "tunnel", "--protocol", "http2", "run", "--token", token)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Start(); err != nil {

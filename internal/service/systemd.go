@@ -22,7 +22,7 @@ Description=Cloudflare Tunnel (cftunnel)
 After=network.target
 
 [Service]
-ExecStart=%s tunnel run --token %s
+ExecStart=%s tunnel --protocol http2 run --token %s
 Restart=always
 RestartSec=5
 

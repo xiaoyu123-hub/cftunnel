@@ -28,6 +28,8 @@ const plistTmpl = `<?xml version="1.0" encoding="UTF-8"?>
     <array>
         <string>{{.BinPath}}</string>
         <string>tunnel</string>
+        <string>--protocol</string>
+        <string>http2</string>
         <string>run</string>
         <string>--token</string>
         <string>{{.Token}}</string>
